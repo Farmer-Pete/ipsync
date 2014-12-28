@@ -2,6 +2,7 @@
 import unittest
 from mock import patch
 from ipaddress import IPv4Address, IPv6Address
+import six
 
 from ipsync import main
 
@@ -14,7 +15,7 @@ class TestMain(unittest.TestCase):
         request_mock.return_value.status_code = 200
         request_mock.return_value.text = '%s\n' % ip
 
-        self.assertEquals(main.resolve_ip(), IPv4Address(ip))
+        self.assertEquals(main.resolve_ip(), IPv4Address(six.u(ip)))
 
     @patch('requests.get')
     def test_resolve_ipv6(self, request_mock):
@@ -24,7 +25,7 @@ class TestMain(unittest.TestCase):
             request_mock.return_value.status_code = 200
             request_mock.return_value.text = '%s\n' % ip
 
-            self.assertEquals(main.resolve_ip(), IPv6Address(ip))
+            self.assertEquals(main.resolve_ip(), IPv6Address(six.u(ip)))
 
     @patch('requests.get')
     def test_resolve_ip_returns_none_on_error(self, request_mock):

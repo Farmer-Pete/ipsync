@@ -4,8 +4,6 @@
 
 import unittest
 
-from ipsync import sample
-
 
 class TestIpsync(unittest.TestCase):
 
@@ -27,8 +25,8 @@ class TestIpsync(unittest.TestCase):
     #     except ImportError:
     #         self.fail("depenency not installed")
 
-    def test_branch_coverage(self):
-        """Sample test method for branch coverage."""
-        self.assertEquals(sample.function(True), 'True')
-        self.assertEquals(sample.function(False), 'False')
-        self.assertEquals(sample.function(None), 'None')
+    # def test_branch_coverage(self):
+    #     """Sample test method for branch coverage."""
+    #     self.assertEquals(sample.function(True), 'True')
+    #     self.assertEquals(sample.function(False), 'False')
+    #     self.assertEquals(sample.function(None), 'None')

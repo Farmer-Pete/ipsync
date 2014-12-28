@@ -6,7 +6,6 @@ ipsync
 [![Coverage Status](http://img.shields.io/coveralls/jon-walton/ipsync/master.svg)](https://coveralls.io/r/jon-walton/ipsync)
 [![Scrutinizer Code Quality](http://img.shields.io/scrutinizer/g/jon-walton/ipsync.svg)](https://scrutinizer-ci.com/g/jon-walton/ipsync/?branch=master)
 [![PyPI Version](http://img.shields.io/pypi/v/ipsync.svg)](https://pypi.python.org/pypi/ipsync)
-[![PyPI Downloads](http://img.shields.io/pypi/dm/ipsync.svg)](https://pypi.python.org/pypi/ipsync)
 
 
 Getting Started

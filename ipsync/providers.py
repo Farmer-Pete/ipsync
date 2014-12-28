@@ -3,22 +3,9 @@
 import logging
 
 
-def provider_update_rax(config):
-    """Use Pyrax to update DNS records configured within Rackspace Cloud DNS.
-
-    If the domains do not already exist, this method will attempt to create them.
-    If the records within the domain do not exist, this method will attempt to create them.
-
-    :return: None
-    """
-    return config
-
-
 class DnsProvider(object):
 
     """DnsProvider abstracts the provider implementations from the main application."""
-
-    _providers = {'rax': provider_update_rax}
 
     def __str__(self):
         """Return the name of the current active provider.
@@ -39,6 +26,8 @@ class DnsProvider(object):
         :param config: YAML configuration section relevant to this provider
         :return: Instance of DnsProvider configured to the correct provider
         """
+        self._providers = {'rax': self.provider_update_rax}
+
         logger = logging.getLogger(__name__)
 
         self._active_provider = self._providers.get(api, None)
@@ -51,10 +40,13 @@ class DnsProvider(object):
 
         logger.info('Registered provider: %s', self)
 
-    def resolve_ip(self):
-        """.
+    def provider_update_rax(self):
+        """Use Pyrax to update DNS records configured within Rackspace Cloud DNS.
 
-        :return:
+        If the domains do not already exist, this method will attempt to create them.
+        If the records within the domain do not exist, this method will attempt to create them.
+
+        :return: None
         """
         pass
 

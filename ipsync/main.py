@@ -11,7 +11,7 @@ from ipsync import providers
 def resolve_ip():
     """Resolve the external IP address of this machine.
 
-    :return: External IP address as a string
+    :return: External IP address
     """
     logger = logging.getLogger()
 
@@ -23,8 +23,8 @@ def resolve_ip():
             logger.error('Could not receive a valid IP address: %s', error.args)
             return None
 
-        logger.info('Received IP address %s', str(ip))
-        return str(ip)
+        logger.info('Received IP address %s', ip)
+        return ip
     else:
         return None
 

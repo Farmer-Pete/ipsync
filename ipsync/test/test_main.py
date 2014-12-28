@@ -1,6 +1,6 @@
 # pylint: disable=C0111,R0903
 import unittest
-from unittest.mock import patch
+from mock import patch
 
 from ipsync import main
 

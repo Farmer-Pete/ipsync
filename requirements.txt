@@ -2,3 +2,4 @@ PyYAML>=3.11
 requests>=2.5.1
 ipaddress>=1.0.7
 mock
+six>=1.8.0

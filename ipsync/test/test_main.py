@@ -2,7 +2,6 @@
 import unittest
 from mock import patch
 from ipaddress import IPv4Address, IPv6Address
-import six
 
 from ipsync import main
 

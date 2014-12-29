@@ -33,7 +33,11 @@ else
 endif
 
 # virtualenv paths
-ENV := env
+ENV := $(VIRTUAL_ENV)
+ifndef ENV
+    $(error No virtualenv active)
+endif
+
 ifneq ($(findstring win32, $(PLATFORM)), )
 	BIN := $(ENV)/Scripts
 	OPEN := cmd /c start
@@ -83,28 +87,28 @@ ci: check test tests
 
 # Development Installation ###################################################
 
-.PHONY: env
-env: .virtualenv $(EGG_INFO)
-$(EGG_INFO): Makefile setup.py requirements.txt
-	VIRTUAL_ENV=$(ENV) $(PYTHON) setup.py develop
-	touch $(EGG_INFO)  # flag to indicate package is installed
+#.PHONY: env
+#env: .virtualenv $(EGG_INFO)
+#$(EGG_INFO): Makefile setup.py requirements.txt
+#	VIRTUAL_ENV=$(ENV) $(PYTHON) setup.py develop
+#	touch $(EGG_INFO)  # flag to indicate package is installed
 
-.PHONY: .virtualenv
-.virtualenv: $(PIP)
-$(PIP):
-	$(SYS_VIRTUALENV) --python $(SYS_PYTHON) $(ENV)
+#.PHONY: .virtualenv
+#.virtualenv: $(PIP)
+#$(PIP):
+#	$(SYS_VIRTUALENV) --python $(SYS_PYTHON) $(ENV)
 
 .PHONY: depends
 depends: depends-ci depends-dev
 
 .PHONY: depends-ci
-depends-ci: env Makefile $(DEPENDS_CI)
+depends-ci: Makefile $(DEPENDS_CI)
 $(DEPENDS_CI): Makefile
 	$(PIP) install $(PIP_CACHE) --upgrade pep8 pep257 pylint $(TEST_RUNNER) coverage
 	touch $(DEPENDS_CI)  # flag to indicate dependencies are installed
 
 .PHONY: depends-dev
-depends-dev: env Makefile $(DEPENDS_DEV)
+depends-dev: Makefile $(DEPENDS_DEV)
 $(DEPENDS_DEV): Makefile
 	$(PIP) install $(PIP_CACHE) --upgrade pep8radius pygments docutils pdoc wheel
 	touch $(DEPENDS_DEV)  # flag to indicate dependencies are installed
@@ -199,12 +203,8 @@ tests-pytest: depends-ci
 clean: .clean-dist .clean-test .clean-doc .clean-build
 	rm -rf $(ALL)
 
-.PHONY: clean-env
-clean-env: clean
-	rm -rf $(ENV)
-
 .PHONY: clean-all
-clean-all: clean clean-env .clean-workspace .clean-cache
+clean-all: clean .clean-cache
 
 .PHONY: .clean-build
 .clean-build:
@@ -227,10 +227,6 @@ clean-all: clean clean-env .clean-workspace .clean-cache
 .PHONY: .clean-cache
 .clean-cache:
 	rm -rf $(PIP_CACHE_DIR)
-
-.PHONY: .clean-workspace
-.clean-workspace:
-	rm -rf *.sublime-workspace
 
 # Release ####################################################################
 

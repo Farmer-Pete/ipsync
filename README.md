@@ -58,7 +58,9 @@ Installation
 Create a virtualenv:
 
 ```
-$ make env
+$ mkvirtualenv ipsync
+$ workon ipsync
+$ pip install -r requirements.txt
 ```
 
 Run the tests:
@@ -68,12 +70,6 @@ $ make test
 $ make tests  # includes integration tests
 ```
 
-Build the documentation:
-
-```
-$ make doc
-```
-
 Run static analysis:
 
 ```
@@ -81,11 +77,4 @@ $ make pep8
 $ make pep257
 $ make pylint
 $ make check  # includes all checks
-```
-
-Prepare a release:
-
-```
-$ make dist  # dry run
-$ make upload
 ```

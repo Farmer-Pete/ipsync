@@ -1,3 +1,5 @@
+"""Version information."""
+
 __project__ = 'ipsync'
 __version__ = '0.0.0'
 

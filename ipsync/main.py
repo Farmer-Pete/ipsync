@@ -58,10 +58,12 @@ def provider_update_rax():
 
 
 def load_config():
+    """Load the configuration yaml from disk."""
     pass
 
 
 def main():
+    """The main entrypoint to ipsync."""
     providers = {'rax', provider_update_rax}
 
     arguments = docopt(__doc__, version='ipsync %s' % __version__)

@@ -85,6 +85,9 @@ $(ALL): $(SOURCES)
 .PHONY: ci
 ci: check test tests
 
+.PHONY: pre-commit
+pre-commit: check tests
+
 # Development Installation ###################################################
 
 #.PHONY: env

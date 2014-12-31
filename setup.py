@@ -6,7 +6,7 @@ Setup script for ipsync.
 
 import setuptools
 
-from ipsync import __project__, __version__
+from ipsync.version import __project__, __version__
 
 import os
 if os.path.exists('README.rst'):
@@ -27,7 +27,7 @@ setuptools.setup(
 
     packages=setuptools.find_packages(),
 
-    entry_points={'console_scripts': []},
+    entry_points={'console_scripts': ['ipsync = ipsync.main:main']},
 
     long_description=(README + '\n' + CHANGES),
     license='MIT',

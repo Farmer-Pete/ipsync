@@ -1,9 +1,28 @@
-"""Main entrypoint to ipsync."""
+"""ipsync.
+
+Usage:
+    ipsync [-v|--version] [-h|--help] [-c FILE|--config=FILE] [--dry-run]
+           <command>
+
+Options:
+    -h --help               Show this screen.
+    -v --version            Show version.
+    -c FILE --config=FILE   Configuration FILE to use [default: ~/.config/ipsync.conf]
+    --dry-run               Run but don't make any changes.
+
+Available commands:
+    update                  Resolve current IP address and update all providers
+
+"""
 
 import logging
 import requests
 import ipaddress
 import six
+from docopt import docopt
+from schema import Schema, Or, Use, SchemaError
+
+from ipsync.version import __version__
 
 
 def resolve_ip():
@@ -37,9 +56,31 @@ def provider_update_rax():
     """
     pass
 
-if __name__ == '__main__':
+
+def load_config():
+    pass
+
+
+def main():
     providers = {'rax', provider_update_rax}
 
+    arguments = docopt(__doc__, version='ipsync %s' % __version__)
+    schema = Schema({
+        '--config': Or('~/.config/ipsync.conf',
+                       Use(open, error='--config file must be readable')),
+        object: object
+    })
+    try:
+        arguments = schema.validate(arguments)
+    except SchemaError as error:
+        exit(error)
+
+    print('args:')
+    print(arguments)
+
+
+if __name__ == '__main__':
+    main()
     # read YAML
     # for each root key in YAML
     #   update_function = providers.get(key)

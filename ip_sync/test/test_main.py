@@ -5,7 +5,7 @@ from ipaddress import IPv4Address, IPv6Address
 import six
 import io
 
-from ipsync import main
+from ip_sync import main
 
 
 class TestMain(unittest.TestCase):
@@ -60,7 +60,7 @@ namecheap:
         self.assertEquals(main.resolve_ip(), None)
 
     def test_load_config(self):
-        config_file = io.StringIO(self._config_yaml)
+        config_file = io.StringIO(six.u(self._config_yaml))
         config_file.name = 'test_config.yml'
         config_data = main.load_config(config_file)
         self.assertIsNotNone(config_data.get('rax'))

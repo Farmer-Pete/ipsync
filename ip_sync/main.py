@@ -23,8 +23,8 @@ from docopt import docopt
 from schema import Schema, Use, SchemaError
 import yaml
 
-from ipsync.version import __version__
-from ipsync.providers import get_provider
+from ip_sync.version import __version__
+from ip_sync.providers import get_provider
 
 
 def resolve_ip():
@@ -78,7 +78,7 @@ def command_update(arguments):
 
 
 def main():
-    """The main entrypoint to ipsync."""
+    """The main entrypoint to ip_sync."""
     log_format = "%(asctime)s %(levelname)-7s " \
                  "[%(filename)20s:%(lineno)-4s %(funcName)-20s] " \
                  "%(message)s"
@@ -87,7 +87,7 @@ def main():
 
     commands = {'update': command_update}
 
-    arguments = docopt(__doc__, version='ipsync %s' % __version__)
+    arguments = docopt(__doc__, version='ip_sync %s' % __version__)
     schema = Schema({
         '--config': Use(open, error='config file must be readable'),
         object: object

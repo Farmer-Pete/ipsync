@@ -5,9 +5,11 @@ import abc
 import logging
 
 
-class AbstractProvider(metaclass=abc.ABCMeta):
+class AbstractProvider(object):
 
     """Used to define the provider interface, all providers must inherit from GenericProvider."""
+
+    __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def update_ip(self, ip):

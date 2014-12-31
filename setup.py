@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 
 """
-Setup script for ipsync.
+Setup script for ip_sync.
 """
 
 import setuptools
 
-from ipsync.version import __project__, __version__
+from ip_sync.version import __project__, __version__
 
 import os
 if os.path.exists('README.rst'):
@@ -27,7 +27,7 @@ setuptools.setup(
 
     packages=setuptools.find_packages(),
 
-    entry_points={'console_scripts': ['ipsync = ipsync.main:main']},
+    entry_points={'console_scripts': ['ipsync = ip_sync.main:main']},
 
     long_description=(README + '\n' + CHANGES),
     license='MIT',

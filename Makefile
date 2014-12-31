@@ -12,7 +12,7 @@ endif
 
 # Project settings
 PROJECT := ipsync
-PACKAGE := ipsync
+PACKAGE := ip_sync
 SOURCES := Makefile setup.py $(shell find $(PACKAGE) -name '*.py')
 EGG_INFO := $(subst -,_,$(PROJECT)).egg-info
 

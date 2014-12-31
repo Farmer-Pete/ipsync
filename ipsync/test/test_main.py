@@ -1,13 +1,31 @@
 # pylint: disable=C0111,R0903
 import unittest
-from mock import patch
+from mock import patch, mock_open
 from ipaddress import IPv4Address, IPv6Address
 import six
+import io
 
 from ipsync import main
 
 
 class TestMain(unittest.TestCase):
+    def setUp(self):
+        self._config_yaml = """rax:
+  api_username: test
+  api_key: 123abc
+  domains:
+    - test.com
+    - www.test.com
+
+namecheap:
+  test.com:
+    hostname: www
+    password: password
+
+  example.com:
+    hostname: test
+    password: 123456"""
+
     @patch('requests.get')
     def test_resolve_ipv4(self, request_mock):
         ip = '127.0.0.1'
@@ -40,3 +58,14 @@ class TestMain(unittest.TestCase):
         request_mock.return_value.text = 'some random data\n'
 
         self.assertEquals(main.resolve_ip(), None)
+
+    def test_load_config(self):
+        config_file = io.StringIO(self._config_yaml)
+        config_file.name = 'test_config.yml'
+        config_data = main.load_config(config_file)
+        self.assertIsNotNone(config_data.get('rax'))
+        self.assertIsNotNone(config_data.get('namecheap'))
+        self.assertIsNotNone(config_data['rax'].get('api_username'))
+        self.assertIsNotNone(config_data['namecheap'].get('test.com'))
+        self.assertIsNotNone(config_data['namecheap']['test.com'].get('hostname'))
+

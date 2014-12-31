@@ -1,6 +1,6 @@
 # pylint: disable=C0111,R0903
 import unittest
-from mock import patch, mock_open
+from mock import patch
 from ipaddress import IPv4Address, IPv6Address
 import six
 import io
@@ -68,4 +68,3 @@ namecheap:
         self.assertIsNotNone(config_data['rax'].get('api_username'))
         self.assertIsNotNone(config_data['namecheap'].get('test.com'))
         self.assertIsNotNone(config_data['namecheap']['test.com'].get('hostname'))
-

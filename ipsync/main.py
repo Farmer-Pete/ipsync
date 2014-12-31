@@ -20,9 +20,11 @@ import requests
 import ipaddress
 import six
 from docopt import docopt
-from schema import Schema, Or, Use, SchemaError
+from schema import Schema, Use, SchemaError
+import yaml
 
 from ipsync.version import __version__
+from ipsync.providers import get_provider
 
 
 def resolve_ip():
@@ -31,6 +33,7 @@ def resolve_ip():
     :return: External IP address
     """
     logger = logging.getLogger()
+    logger.info('Resolving IP...')
 
     response = requests.get('https://icanhazip.com/')
     if response.status_code == requests.codes['ok']:
@@ -46,30 +49,47 @@ def resolve_ip():
         return None
 
 
-def provider_update_rax():
-    """Use Pyrax to update DNS records configured within Rackspace Cloud DNS.
-
-    If the domains do not already exist, this method will attempt to create them.
-    If the records within the domain do not exist, this method will attempt to create them.
-
-    :return: None
-    """
-    pass
-
-
-def load_config():
+def load_config(config_file):
     """Load the configuration yaml from disk."""
-    pass
+    logger = logging.getLogger()
+
+    logger.info('Loading configuration file from %s', config_file.name)
+
+    data = yaml.safe_load(config_file)
+    logger.debug(data)
+
+    return data
+
+
+def command_update(arguments):
+    """Update all providers with a new IP."""
+    logger = logging.getLogger()
+
+    logger.info('Running update')
+
+    logger = logging.getLogger()
+    config = load_config(arguments['--config'])
+    ip = resolve_ip()
+
+    for provider in config:
+        logger.debug('Parsing provider: %s', provider)
+        provider_class = get_provider(provider, config[provider])
+        provider_class.update_ip(ip)
 
 
 def main():
     """The main entrypoint to ipsync."""
-    providers = {'rax', provider_update_rax}
+    log_format = "%(asctime)s %(levelname)-7s " \
+                 "[%(filename)20s:%(lineno)-4s %(funcName)-20s] " \
+                 "%(message)s"
+    logging.basicConfig(level=logging.DEBUG,
+                        format=log_format)
+
+    commands = {'update': command_update}
 
     arguments = docopt(__doc__, version='ipsync %s' % __version__)
     schema = Schema({
-        '--config': Or('~/.config/ipsync.conf',
-                       Use(open, error='--config file must be readable')),
+        '--config': Use(open, error='config file must be readable'),
         object: object
     })
     try:
@@ -77,14 +97,10 @@ def main():
     except SchemaError as error:
         exit(error)
 
-    print('args:')
-    print(arguments)
+    if arguments['<command>'] in commands:
+        command = commands[arguments['<command>']]
+        command(arguments)
 
 
 if __name__ == '__main__':
     main()
-    # read YAML
-    # for each root key in YAML
-    #   update_function = providers.get(key)
-    #   if update_function:
-    #     update_function(config_section)

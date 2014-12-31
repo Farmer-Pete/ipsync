@@ -18,7 +18,6 @@ Available commands:
 import logging
 import requests
 import ipaddress
-import six
 from docopt import docopt
 from schema import Schema, Use, SchemaError
 import yaml
@@ -38,7 +37,7 @@ def resolve_ip():
     response = requests.get('https://icanhazip.com/')
     if response.status_code == requests.codes['ok']:
         try:
-            ip = ipaddress.ip_address(six.u(response.text.strip()))
+            ip = ipaddress.ip_address(response.text.strip())
         except ValueError as error:
             logger.error('Could not receive a valid IP address: %s', error.args)
             return None

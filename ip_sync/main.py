@@ -16,6 +16,7 @@ Available commands:
 
 import logging
 import requests
+import requests.exceptions
 import ipaddress
 from docopt import docopt
 from schema import Schema, Use, SchemaError
@@ -33,7 +34,12 @@ def resolve_ip():
     logger = logging.getLogger()
     logger.info('Resolving IP...')
 
-    response = requests.get('https://icanhazip.com/')
+    try:
+        response = requests.get('https://icanhazip.com/')
+    except requests.exceptions.RequestException as error:
+        logger.error('Exception raised during request: %s', error)
+        return None
+
     if response.status_code == requests.codes['ok']:
         try:
             ip = ipaddress.ip_address(response.text.strip())
@@ -44,6 +50,8 @@ def resolve_ip():
         logger.info('Received IP address %s', ip)
         return ip
     else:
+        logger.error('Unable to retrieve IP address, %s status code received',
+                     response.status_code)
         return None
 
 
@@ -68,6 +76,10 @@ def command_update(arguments):
     logger = logging.getLogger()
     config = load_config(arguments['--config'])
     ip = resolve_ip()
+
+    if not ip:
+        logger.error('No IP address retrieved, exiting.')
+        exit(1)
 
     for provider in config:
         logger.debug('Parsing provider: %s', provider)

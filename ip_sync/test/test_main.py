@@ -2,7 +2,6 @@
 from mock import patch
 from ipaddress import IPv4Address, IPv6Address
 import six
-import io
 import requests.exceptions
 
 from ip_sync.test import TestBase
@@ -50,11 +49,28 @@ class TestMain(TestBase):
         self.assertIsNone(main.resolve_ip())
 
     def test_load_config(self):
-        config_file = io.StringIO(self._config_yaml)
-        config_file.name = 'test_config.yml'
-        config_data = main.load_config(config_file)
+        config_data = main.load_config(self._config_file)
         self.assertIsNotNone(config_data.get('rackspace'))
         self.assertIsNotNone(config_data.get('namecheap'))
         self.assertIsNotNone(config_data['rackspace'].get('api_username'))
         self.assertIsNotNone(config_data['namecheap'].get('test.com'))
         self.assertIsNotNone(config_data['namecheap']['test.com'].get('hostname'))
+
+    @patch('ip_sync.main.get_provider')
+    @patch('ip_sync.main.resolve_ip')
+    def test_command_update(self, resolve_ip_mock, get_provider_mock):
+        resolve_ip_mock.return_value = IPv4Address(six.u('127.0.0.1'))
+        main.command_update(self._args)
+
+        resolve_ip_mock.assert_called_once_with()
+        get_provider_mock.assert_any_call('rackspace', self._config_data['rackspace'])
+        get_provider_mock.assert_any_call('namecheap', self._config_data['namecheap'])
+
+    @patch('sys.exit')
+    @patch('ip_sync.main.resolve_ip')
+    def test_command_update_exits_when_no_ip(self, resolve_ip_mock, exit_mock):
+        resolve_ip_mock.return_value = None
+        main.command_update(self._args)
+
+        resolve_ip_mock.assert_called_once_with()
+        self.assertEqual(exit_mock.call_count, 1)

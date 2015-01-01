@@ -1,7 +1,10 @@
 # pylint: disable=C0111,R0903
 """Tests for the ip_sync package."""
 import unittest
+from mock import mock_open
 import six
+import io
+import yaml
 
 
 class TestBase(unittest.TestCase):
@@ -25,3 +28,15 @@ namecheap:
   example.com:
     hostname: test
     password: 123456""")
+
+        self._config_data = yaml.safe_load(self._config_yaml)
+
+        self._config_file = io.StringIO(self._config_yaml)
+        self._config_file.name = 'test_config.yml'
+
+        self._args = {
+            '--config': self._config_file,
+            '--dry-run': False,
+            '--help': False,
+            '--version': False,
+            '<command>': 'update'}

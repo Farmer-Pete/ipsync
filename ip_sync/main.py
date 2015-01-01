@@ -14,6 +14,7 @@ Available commands:
 
 """
 
+import sys
 import logging
 import requests
 import requests.exceptions
@@ -79,11 +80,11 @@ def command_update(arguments):
 
     if not ip:
         logger.error('No IP address retrieved, exiting.')
-        exit(1)
+        sys.exit(1)
 
     for provider in config:
         logger.debug('Parsing provider: %s', provider)
-        provider_class = get_provider(provider, config[provider])
+        provider_class = get_provider(provider.lower(), config[provider])
         provider_class.update_ip(ip)
 
 

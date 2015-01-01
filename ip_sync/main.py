@@ -106,7 +106,7 @@ def main():
     try:
         arguments = schema.validate(arguments)
     except SchemaError as error:
-        exit(error)
+        return sys.exit(error)
 
     if arguments['<command>'] in commands:
         command = commands[arguments['<command>']]

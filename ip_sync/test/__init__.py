@@ -1,7 +1,6 @@
 # pylint: disable=C0111,R0903
 """Tests for the ip_sync package."""
 import unittest
-from mock import mock_open
 import six
 import io
 import yaml

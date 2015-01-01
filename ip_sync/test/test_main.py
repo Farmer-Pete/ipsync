@@ -1,31 +1,15 @@
 # pylint: disable=C0111,R0903
-import unittest
 from mock import patch
 from ipaddress import IPv4Address, IPv6Address
 import six
 import io
+import requests.exceptions
 
+from ip_sync.test import TestBase
 from ip_sync import main
 
 
-class TestMain(unittest.TestCase):
-    def setUp(self):
-        self._config_yaml = six.u("""rax:
-  api_username: test
-  api_key: 123abc
-  domains:
-    - test.com
-    - www.test.com
-
-namecheap:
-  test.com:
-    hostname: www
-    password: password
-
-  example.com:
-    hostname: test
-    password: 123456""")
-
+class TestMain(TestBase):
     @patch('requests.get')
     def test_resolve_ipv4(self, request_mock):
         ip = '127.0.0.1'
@@ -46,25 +30,31 @@ namecheap:
             self.assertEquals(main.resolve_ip(), IPv6Address(six.u(ip)))
 
     @patch('requests.get')
-    def test_resolve_ip_returns_none_on_error(self, request_mock):
+    def test_resolve_ip_returns_none_on_error_status_code(self, request_mock):
         request_mock.return_value.status_code = 500
         request_mock.return_value.text = six.u('An error occurred')
 
-        self.assertEquals(main.resolve_ip(), None)
+        self.assertIsNone(main.resolve_ip())
+
+    @patch('requests.get')
+    def test_resolve_ip_returns_none_on_exception(self, request_mock):
+        request_mock.side_effect = requests.exceptions.ConnectionError
+
+        self.assertIsNone(main.resolve_ip())
 
     @patch('requests.get')
     def test_resolve_ip_returns_none_on_invalid_data(self, request_mock):
         request_mock.return_value.status_code = 200
         request_mock.return_value.text = six.u('some random data\n')
 
-        self.assertEquals(main.resolve_ip(), None)
+        self.assertIsNone(main.resolve_ip())
 
     def test_load_config(self):
         config_file = io.StringIO(self._config_yaml)
         config_file.name = 'test_config.yml'
         config_data = main.load_config(config_file)
-        self.assertIsNotNone(config_data.get('rax'))
+        self.assertIsNotNone(config_data.get('rackspace'))
         self.assertIsNotNone(config_data.get('namecheap'))
-        self.assertIsNotNone(config_data['rax'].get('api_username'))
+        self.assertIsNotNone(config_data['rackspace'].get('api_username'))
         self.assertIsNotNone(config_data['namecheap'].get('test.com'))
         self.assertIsNotNone(config_data['namecheap']['test.com'].get('hostname'))

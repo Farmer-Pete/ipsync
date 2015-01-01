@@ -30,12 +30,14 @@ class GenericProvider(AbstractProvider):
     All providers must inherit from this class.
     """
 
-    def __init__(self, config):
+    def __init__(self, name, config):
         """Create a new provider.
 
+        :param name:
         :param config: Provider specific config
         :return:
         """
+        self._name = name
         self._config = config
 
     @abc.abstractmethod
@@ -58,7 +60,7 @@ class InvalidProvider(GenericProvider):
         """Log to file and do nothing."""
         logger = logging.getLogger()
 
-        logger.error('Unable to find valid provider')
+        logger.error('Unable to find provider %s', self._name)
         return False
 
 
@@ -89,8 +91,11 @@ def get_provider(name, config):
     :param config: Parsed data from the yaml config.
     :return: Provider class.
     """
-    providers = {
-        'rax': Rackspace,
-    }
+    for subclass in GenericProvider.__subclasses__():  # pylint: disable=E1101
+        if subclass.__name__.lower() == name.lower():
+            provider = subclass(name, config)
+            break
+    else:
+        provider = InvalidProvider(name, config)
 
-    return providers.get(name, InvalidProvider)(config)
+    return provider

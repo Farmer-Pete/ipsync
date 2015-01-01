@@ -20,7 +20,6 @@ class AbstractProvider(object):
         :param: ip: New IP address to update at the provider
         :return: None
         """
-        pass
 
 
 class GenericProvider(AbstractProvider):
@@ -49,7 +48,6 @@ class GenericProvider(AbstractProvider):
         :param: ip: New IP address to update at the provider
         :return: None
         """
-        pass
 
 
 class InvalidProvider(GenericProvider):
@@ -81,6 +79,15 @@ class Rackspace(GenericProvider):
         logger.debug('RAX config: %s', self._config)
         logger.info('Updating RAX with IP %s', ip)
 
+        return False
+
+
+class Namecheap(GenericProvider):
+
+    """placeholder."""
+
+    def update_ip(self, ip):
+        """placeholder."""
         return False
 
 

@@ -98,7 +98,7 @@ def main():
 
     commands = {'update': command_update}
 
-    arguments = docopt(__doc__, version='ip_sync %s' % __version__)
+    arguments = docopt(__doc__, version='ipsync %s' % __version__)
     schema = Schema({
         '--config': Use(open, error='config file must be readable'),
         object: object

@@ -3,6 +3,7 @@ from mock import patch
 from ipaddress import IPv4Address, IPv6Address
 import six
 import requests.exceptions
+import schema
 
 from ip_sync.test import TestBase
 from ip_sync import main
@@ -76,3 +77,32 @@ class TestMain(TestBase):
         resolve_ip_mock.assert_called_once_with()
         self.assertEqual(exit_mock.call_count, 1)
         self.assertEqual(get_provider_mock.call_count, 0)
+
+    @patch.object(schema.Schema, 'validate')
+    @patch('ip_sync.main.docopt')
+    @patch('ip_sync.main.command_update')
+    def test_main(self, command_update_mock, docopt_mock, schema_mock):
+        docopt_mock.return_value = self._args
+        schema_mock.return_value = self._args
+
+        main.main()
+
+        command_update_mock.assert_called_once_with(self._args)
+        self.assertEqual(docopt_mock.call_count, 1)
+        self.assertEqual(schema_mock.call_count, 1)
+
+    @patch('sys.exit')
+    @patch.object(schema.Schema, 'validate')
+    @patch('ip_sync.main.docopt')
+    @patch('ip_sync.main.command_update')
+    def test_main_exits_on_schema_error(self, command_update_mock, docopt_mock, schema_mock,
+                                        exit_mock):
+        docopt_mock.return_value = self._args
+        schema_mock.side_effect = schema.SchemaError(None, None)
+
+        main.main()
+
+        self.assertEqual(command_update_mock.call_count, 0)
+        self.assertEqual(docopt_mock.call_count, 1)
+        self.assertEqual(schema_mock.call_count, 1)
+        self.assertEqual(exit_mock.call_count, 1)

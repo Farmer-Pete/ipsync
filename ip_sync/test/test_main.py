@@ -66,11 +66,13 @@ class TestMain(TestBase):
         get_provider_mock.assert_any_call('rackspace', self._config_data['rackspace'])
         get_provider_mock.assert_any_call('namecheap', self._config_data['namecheap'])
 
+    @patch('ip_sync.main.get_provider')
     @patch('sys.exit')
     @patch('ip_sync.main.resolve_ip')
-    def test_command_update_exits_when_no_ip(self, resolve_ip_mock, exit_mock):
+    def test_command_update_exits_when_no_ip(self, resolve_ip_mock, exit_mock, get_provider_mock):
         resolve_ip_mock.return_value = None
         main.command_update(self._args)
 
         resolve_ip_mock.assert_called_once_with()
         self.assertEqual(exit_mock.call_count, 1)
+        self.assertEqual(get_provider_mock.call_count, 0)

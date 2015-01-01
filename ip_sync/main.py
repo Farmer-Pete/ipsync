@@ -80,7 +80,7 @@ def command_update(arguments):
 
     if not ip:
         logger.error('No IP address retrieved, exiting.')
-        sys.exit(1)
+        return sys.exit(1)
 
     for provider in config:
         logger.debug('Parsing provider: %s', provider)

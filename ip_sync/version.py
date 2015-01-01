@@ -1,6 +1,6 @@
 """Version information."""
 
-__project__ = 'ip_sync'
+__project__ = 'ipsync'
 __version__ = '0.0.0'
 
 VERSION = __project__ + '-' + __version__

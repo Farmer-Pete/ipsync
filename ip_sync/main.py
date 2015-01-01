@@ -1,8 +1,7 @@
 """ipsync.
 
 Usage:
-    ipsync [-v|--version] [-h|--help] [-c FILE|--config=FILE] [--dry-run]
-           <command>
+    ipsync [options] <command>
 
 Options:
     -h --help               Show this screen.

@@ -3,6 +3,10 @@
 
 import abc
 import logging
+import re
+import requests
+import requests.exceptions
+from bs4 import BeautifulSoup
 
 
 class AbstractProvider(object):
@@ -84,11 +88,70 @@ class Rackspace(GenericProvider):
 
 class Namecheap(GenericProvider):
 
-    """placeholder."""
+    """Namecheap provider. Allows updating an IP address of a pre-configured domain.
+
+    DDNS must be configured in namecheap's control panel before this will work.
+    """
+
+    # Success:
+    # <?xml version="1.0" encoding="UTF-8"?>
+    # <interface-response>
+    #     <Command>SETDNSHOST</Command>
+    #     <Language>eng</Language>
+    #     <IP>1.36.217.16</IP>
+    #     <ErrCount>0</ErrCount>
+    #     <ResponseCount>0</ResponseCount>
+    #     <Done>true</Done>
+    #     <debug />
+    # </interface-response>
+
+    # Error:
+    # <?xml version="1.0" encoding="UTF-8"?>
+    # <interface-response>
+    #     <Command>SETDNSHOST</Command>
+    #     <Language>eng</Language>
+    #     <ErrCount>1</ErrCount>
+    #     <errors>
+    #         <Err1>Domain name not active</Err1>
+    #     </errors>
+    #     <ResponseCount>1</ResponseCount>
+    #     <responses>
+    #         <response>
+    #             <ResponseNumber>316154</ResponseNumber>
+    #             <ResponseString>Validation error; not active; domain name(s)</ResponseString>
+    #         </response>
+    #     </responses>
+    #     <Done>true</Done>
+    #     <debug />
+    # </interface-response>
 
     def update_ip(self, ip):
-        """placeholder."""
-        return False
+        """Update the IP address for a domain hosted at namecheap."""
+        logger = logging.getLogger()
+
+        endpoint = 'https://dynamicdns.park-your-domain.com/' \
+                   'update?host={host}&domain={domain}&password={password}&ip={ip}'
+
+        for domain in self._config:
+            host = self._config[domain].get('hostname')
+            password = self._config[domain].get('password')
+
+            try:
+                response = requests.get(endpoint.format(host=host,
+                                                        domain=domain,
+                                                        password=password,
+                                                        ip=ip))
+            except requests.exceptions.RequestException as error:
+                logger.error(error)
+                continue
+
+            soup = BeautifulSoup(response.text)
+            for error in soup.find_all(re.compile(r'(err\d)')):
+                logger.error('Received error when updating %s.%s: %s',
+                             host, domain, error.text)
+                break
+            else:
+                logger.info('Successfully updated %s.%s with new IP %s', host, domain, ip)
 
 
 def get_provider(name, config):

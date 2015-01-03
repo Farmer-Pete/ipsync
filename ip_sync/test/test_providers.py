@@ -1,6 +1,8 @@
 # pylint: disable=C0111,R0903
 from ipaddress import IPv4Address
 import six
+from mock import patch, Mock
+from logging import RootLogger
 
 from ip_sync.test import TestBase
 from ip_sync import providers
@@ -38,12 +40,67 @@ class TestProviders(TestBase):
         self.assertIsInstance(provider, providers.InvalidProvider)
         provider.update_ip(IPv4Address(six.u('127.0.0.1')))
 
-    def test_rackspace_update(self):
+    @patch('requests.get')
+    def test_rackspace_update(self, requests_get_mock):
+        requests_get_mock.return_value.status_code = 200
+        requests_get_mock.return_value.text = ''
+
         provider = providers.get_provider('rackspace', self._config_data['rackspace'])
         self.assertIsInstance(provider, providers.Rackspace)
         provider.update_ip(IPv4Address(six.u('127.0.0.1')))
 
-    def test_namecheap_update(self):
+    @patch('logging.getLogger')
+    @patch('requests.get')
+    def test_namecheap_logs_error_when_error_from_api(self, requests_get_mock, logging_mock):
+        requests_get_mock.return_value.status_code = 200
+        requests_get_mock.return_value.text = """<?xml version="1.0" encoding="UTF-8"?>
+<interface-response>
+    <Command>SETDNSHOST</Command>
+    <Language>eng</Language>
+    <ErrCount>1</ErrCount>
+    <errors>
+        <Err1>Domain name not active</Err1>
+    </errors>
+    <ResponseCount>1</ResponseCount>
+    <responses>
+        <response>
+            <ResponseNumber>316154</ResponseNumber>
+            <ResponseString>Validation error; not active; domain name(s)</ResponseString>
+        </response>
+    </responses>
+    <Done>true</Done>
+    <debug />
+</interface-response>"""
+        logging_mock.return_value = Mock(spec=RootLogger)
+
         provider = providers.get_provider('namecheap', self._config_data['namecheap'])
         self.assertIsInstance(provider, providers.Namecheap)
+
         provider.update_ip(IPv4Address(six.u('127.0.0.1')))
+
+        self.assertEqual(0, logging_mock().info.call_count)
+        self.assertEqual(2, logging_mock().error.call_count)
+
+    @patch('logging.getLogger')
+    @patch('requests.get')
+    def test_namecheap_logs_success_when_success_from_api(self, requests_get_mock, logging_mock):
+        requests_get_mock.return_value.status_code = 200
+        requests_get_mock.return_value.text = """<?xml version="1.0" encoding="UTF-8"?>
+<interface-response>
+    <Command>SETDNSHOST</Command>
+    <Language>eng</Language>
+    <IP>1.36.217.16</IP>
+    <ErrCount>0</ErrCount>
+    <ResponseCount>0</ResponseCount>
+    <Done>true</Done>
+    <debug />
+</interface-response>"""
+        logging_mock.return_value = Mock(spec=RootLogger)
+
+        provider = providers.get_provider('namecheap', self._config_data['namecheap'])
+        self.assertIsInstance(provider, providers.Namecheap)
+
+        provider.update_ip(IPv4Address(six.u('127.0.0.1')))
+
+        self.assertEqual(2, logging_mock().info.call_count)
+        self.assertEqual(0, logging_mock().error.call_count)

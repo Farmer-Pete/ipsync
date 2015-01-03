@@ -3,6 +3,7 @@ from ipaddress import IPv4Address
 import six
 from mock import patch, Mock
 from logging import RootLogger
+import requests.exceptions
 
 from ip_sync.test import TestBase
 from ip_sync import providers
@@ -48,6 +49,19 @@ class TestProviders(TestBase):
         provider = providers.get_provider('rackspace', self._config_data['rackspace'])
         self.assertIsInstance(provider, providers.Rackspace)
         provider.update_ip(IPv4Address(six.u('127.0.0.1')))
+
+    @patch('logging.getLogger')
+    @patch('requests.get')
+    def test_namecheap_logs_error_on_requests_exception(self, requests_get_mock, logging_mock):
+        requests_get_mock.side_effect = requests.exceptions.ConnectTimeout('ConnectTimeout')
+
+        provider = providers.get_provider('namecheap', self._config_data['namecheap'])
+        self.assertIsInstance(provider, providers.Namecheap)
+
+        provider.update_ip(IPv4Address(six.u('127.0.0.1')))
+
+        self.assertEqual(0, logging_mock().info.call_count)
+        self.assertEqual(2, logging_mock().error.call_count)
 
     @patch('logging.getLogger')
     @patch('requests.get')

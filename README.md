@@ -1,6 +1,6 @@
 ipsync
 ======
-"A script to update DDNS"
+ipsync is a script to update multiple cloud DNS providers with your external IP address. Useful for when you need to connect to a system on a dynamic IP.
 
 [![Build Status](http://img.shields.io/travis/jon-walton/ipsync/master.svg)](https://travis-ci.org/jon-walton/ipsync)
 [![Coverage Status](http://img.shields.io/coveralls/jon-walton/ipsync/master.svg)](https://coveralls.io/r/jon-walton/ipsync)
@@ -15,7 +15,6 @@ Requirements
 ------------
 
 * Python 2.7+ or Python 3.3+
-* libyaml-devel
 
 Installation
 ------------
@@ -37,6 +36,39 @@ $ python setup.py install
 Basic Usage
 ===========
 
+```
+Usage:
+    ipsync [options] <command>
+
+Options:
+    -h --help               Show this screen.
+    -v --version            Show version.
+    -c FILE --config=FILE   Configuration FILE to use [default: ~/.config/ipsync.conf]
+    --dry-run               Run but don't make any changes.
+
+Available commands:
+    update                  Resolve current IP address and update all providers
+```
+
+Configuration
+-------------
+
+By default, ipsync will look in ~/.config/ipsync.conf for a yaml formatted file. A sample file is in [config/config.sample.yml](config/config.sample.yml)
+
+**Namecheap.com**
+
+For ipsync to work with namecheap, you must first [enable it within the control panel](https://www.namecheap.com/support/knowledgebase/article.aspx/595/11/how-do-i-enable-dynamic-dns-for-a-domain) and then configure a namecheap section within the ipsync configuration file
+
+```
+namecheap:
+  test.com:
+    hostname: www
+    password: password
+
+  example.com:
+    hostname: test
+    password: 123456
+```
 
 For Contributors
 ================

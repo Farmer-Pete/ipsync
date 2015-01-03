@@ -20,7 +20,8 @@ setuptools.setup(
     name=__project__,
     version=__version__,
 
-    description="ipsync is a Python 3 package template.",
+    description='ipsync is a script to update multiple '
+                'cloud DNS providers with your external IP address',
     url='https://github.com/jon-walton/ipsync',
     author='Jon Walton',
     author_email='jonwalton@gmail.com',

@@ -16,7 +16,7 @@ class AbstractProvider(object):
     __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
-    def update_ip(self, ip):
+    def update_ip(self, ip, dry_run):
         """Update the provider's DNS records with the new IP address.
 
         This must be overridden by the provider class
@@ -44,7 +44,7 @@ class GenericProvider(AbstractProvider):
         self._config = config
 
     @abc.abstractmethod
-    def update_ip(self, ip):
+    def update_ip(self, ip, dry_run):
         """Update the provider's DNS records with the new IP address.
 
         This must be overridden by the provider class
@@ -58,7 +58,7 @@ class InvalidProvider(GenericProvider):
 
     """Used when no provider could be found matching the config yaml."""
 
-    def update_ip(self, ip):
+    def update_ip(self, ip, dry_run):
         """Log to file and do nothing."""
         logger = logging.getLogger()
 
@@ -70,7 +70,7 @@ class Rackspace(GenericProvider):
 
     """Rackspace cloud provider. Allows updating IP address of Rackspace Cloud DNS."""
 
-    def update_ip(self, ip):
+    def update_ip(self, ip, dry_run):
         """Update the IP address stored within a Rackspace Cloud DNS domain.
 
         This function will create the hostname if it does not already exist.
@@ -125,7 +125,7 @@ class Namecheap(GenericProvider):
     #     <debug />
     # </interface-response>
 
-    def update_ip(self, ip):
+    def update_ip(self, ip, dry_run):
         """Update the IP address for a domain hosted at namecheap."""
         logger = logging.getLogger()
 
@@ -135,6 +135,10 @@ class Namecheap(GenericProvider):
         for domain in self._config:
             host = self._config[domain].get('hostname')
             password = self._config[domain].get('password')
+
+            if dry_run:
+                logger.info('dry_run: True. Will not update %s.%s', host, domain)
+                break
 
             try:
                 response = requests.get(endpoint.format(host=host,

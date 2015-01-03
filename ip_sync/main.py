@@ -85,7 +85,7 @@ def command_update(arguments):
     for provider in config:
         logger.debug('Parsing provider: %s', provider)
         provider_class = get_provider(provider.lower(), config[provider])
-        provider_class.update_ip(ip)
+        provider_class.update_ip(ip, dry_run=arguments['--dry-run'])
 
 
 def main():

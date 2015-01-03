@@ -39,7 +39,7 @@ class TestProviders(TestBase):
     def test_invalid_provider_update(self):
         provider = providers.get_provider('invalid-provider-1234', None)
         self.assertIsInstance(provider, providers.InvalidProvider)
-        provider.update_ip(IPv4Address(six.u('127.0.0.1')))
+        provider.update_ip(IPv4Address(six.u('127.0.0.1')), False)
 
     @patch('requests.get')
     def test_rackspace_update(self, requests_get_mock):
@@ -48,7 +48,15 @@ class TestProviders(TestBase):
 
         provider = providers.get_provider('rackspace', self._config_data['rackspace'])
         self.assertIsInstance(provider, providers.Rackspace)
-        provider.update_ip(IPv4Address(six.u('127.0.0.1')))
+        provider.update_ip(IPv4Address(six.u('127.0.0.1')), False)
+
+    @patch('requests.get')
+    def test_namecheap_dry_run(self, requests_get_mock):
+        provider = providers.get_provider('namecheap', self._config_data['namecheap'])
+        self.assertIsInstance(provider, providers.Namecheap)
+        provider.update_ip(IPv4Address(six.u('127.0.0.1')), True)
+
+        self.assertEqual(0, requests_get_mock.call_count)
 
     @patch('logging.getLogger')
     @patch('requests.get')
@@ -58,7 +66,7 @@ class TestProviders(TestBase):
         provider = providers.get_provider('namecheap', self._config_data['namecheap'])
         self.assertIsInstance(provider, providers.Namecheap)
 
-        provider.update_ip(IPv4Address(six.u('127.0.0.1')))
+        provider.update_ip(IPv4Address(six.u('127.0.0.1')), False)
 
         self.assertEqual(0, logging_mock().info.call_count)
         self.assertEqual(2, logging_mock().error.call_count)
@@ -90,7 +98,7 @@ class TestProviders(TestBase):
         provider = providers.get_provider('namecheap', self._config_data['namecheap'])
         self.assertIsInstance(provider, providers.Namecheap)
 
-        provider.update_ip(IPv4Address(six.u('127.0.0.1')))
+        provider.update_ip(IPv4Address(six.u('127.0.0.1')), False)
 
         self.assertEqual(0, logging_mock().info.call_count)
         self.assertEqual(2, logging_mock().error.call_count)
@@ -114,7 +122,7 @@ class TestProviders(TestBase):
         provider = providers.get_provider('namecheap', self._config_data['namecheap'])
         self.assertIsInstance(provider, providers.Namecheap)
 
-        provider.update_ip(IPv4Address(six.u('127.0.0.1')))
+        provider.update_ip(IPv4Address(six.u('127.0.0.1')), False)
 
         self.assertEqual(2, logging_mock().info.call_count)
         self.assertEqual(0, logging_mock().error.call_count)

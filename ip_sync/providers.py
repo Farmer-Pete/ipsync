@@ -138,7 +138,7 @@ class Namecheap(GenericProvider):
 
             if dry_run:
                 logger.info('dry_run: True. Will not update %s.%s', host, domain)
-                break
+                continue
 
             try:
                 response = requests.get(endpoint.format(host=host,

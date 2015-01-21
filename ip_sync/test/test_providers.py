@@ -41,14 +41,14 @@ class TestProviders(TestBase):
         self.assertIsInstance(provider, providers.InvalidProvider)
         provider.update_ip(IPv4Address(six.u('127.0.0.1')), False)
 
-    @patch('requests.get')
-    def test_rackspace_update(self, requests_get_mock):
-        requests_get_mock.return_value.status_code = 200
-        requests_get_mock.return_value.text = ''
-
-        provider = providers.get_provider('rackspace', self._config_data['rackspace'])
-        self.assertIsInstance(provider, providers.Rackspace)
-        provider.update_ip(IPv4Address(six.u('127.0.0.1')), False)
+    # @patch('requests.get')
+    # def test_rackspace_update(self, requests_get_mock):
+    #     requests_get_mock.return_value.status_code = 200
+    #     requests_get_mock.return_value.text = ''
+    #
+    #     provider = providers.get_provider('rackspace', self._config_data['rackspace'])
+    #     self.assertIsInstance(provider, providers.Rackspace)
+    #     provider.update_ip(IPv4Address(six.u('127.0.0.1')), False)
 
     @patch('requests.get')
     def test_namecheap_dry_run(self, requests_get_mock):

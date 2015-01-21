@@ -83,7 +83,43 @@ class Rackspace(GenericProvider):
         logger.debug('RAX config: %s', self._config)
         logger.info('Updating RAX with IP %s', ip)
 
-        return False
+        try:
+            from libcloud.dns.drivers import rackspace
+            from libcloud.dns.types import RecordType
+        except ImportError as error:
+            logger.fatal('Failed to import libcloud: %s', error)
+            return
+
+        dns_driver = rackspace.RackspaceDNSDriver(self._config.get('api_username'),
+                                                  self._config.get('api_key'))
+
+        updated_domains = []
+        for zone in dns_driver.iterate_zones():
+            if zone.domain.lower()\
+                    not in map(str.lower, self._config.get('domains', {'': ''}).keys()):
+                continue
+
+            logger.info('Found domain %s', zone.domain)
+            updated_domains.append(zone.domain)
+
+            for record in dns_driver.iterate_records(zone):
+                if record.name is None:
+                    continue
+
+                if record.name.lower() != self._config.get('domains')[zone.domain].lower():
+                    continue
+
+                if record.type != RecordType.A:
+                    continue
+
+                record.update(data=str(ip))
+                logger.info('Updated %s', record.name)
+
+                break
+            else:
+                record_name = self._config.get('domains')[zone.domain]
+                logger.info('Created record %s', record_name)
+                zone.create_record(record_name, RecordType.A, str(ip))
 
 
 class Namecheap(GenericProvider):
@@ -150,9 +186,9 @@ class Namecheap(GenericProvider):
                 continue
 
             soup = BeautifulSoup(response.text)
-            for error in soup.find_all(re.compile(r'(err\d)')):
+            for result_error in soup.find_all(re.compile(r'(err\d)')):
                 logger.error('Received error when updating %s.%s: %s',
-                             host, domain, error.text)
+                             host, domain, result_error.text)
                 break
             else:
                 logger.info('Successfully updated %s.%s with new IP %s', host, domain, ip)

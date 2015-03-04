@@ -69,7 +69,7 @@ class TestProviders(TestBase):
         provider.update_ip(IPv4Address(six.u('127.0.0.1')), False)
 
         self.assertEqual(0, logging_mock().info.call_count)
-        self.assertEqual(2, logging_mock().error.call_count)
+        self.assertEqual(3, logging_mock().error.call_count)
 
     @patch('logging.getLogger')
     @patch('requests.get')
@@ -101,7 +101,7 @@ class TestProviders(TestBase):
         provider.update_ip(IPv4Address(six.u('127.0.0.1')), False)
 
         self.assertEqual(0, logging_mock().info.call_count)
-        self.assertEqual(2, logging_mock().error.call_count)
+        self.assertEqual(3, logging_mock().error.call_count)
 
     @patch('logging.getLogger')
     @patch('requests.get')
@@ -124,5 +124,5 @@ class TestProviders(TestBase):
 
         provider.update_ip(IPv4Address(six.u('127.0.0.1')), False)
 
-        self.assertEqual(2, logging_mock().info.call_count)
+        self.assertEqual(3, logging_mock().info.call_count)
         self.assertEqual(0, logging_mock().error.call_count)

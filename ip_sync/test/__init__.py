@@ -21,7 +21,7 @@ class TestBase(unittest.TestCase):
 
 namecheap:
   test.com:
-    hostname: www
+    hostname: [www, '@']
     password: password
 
   example.com:

@@ -62,11 +62,11 @@ For ipsync to work with namecheap, you must first [enable it within the control 
 ```
 namecheap:
   test.com:
-    hostname: www
+    hostname: [www, '@'] # Update both www and "naked" domains
     password: password
 
   example.com:
-    hostname: test
+    hostname: test # Update test.example.com
     password: 123456
 ```
 

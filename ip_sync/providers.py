@@ -7,6 +7,7 @@ import re
 import requests
 import requests.exceptions
 from bs4 import BeautifulSoup
+from six import string_types
 
 
 class AbstractProvider(object):
@@ -169,29 +170,34 @@ class Namecheap(GenericProvider):
                    'update?host={host}&domain={domain}&password={password}&ip={ip}'
 
         for domain in self._config:
-            host = self._config[domain].get('hostname')
+            hosts = self._config[domain].get('hostname')
             password = self._config[domain].get('password')
 
-            if dry_run:
-                logger.info('dry_run: True. Will not update %s.%s', host, domain)
-                continue
+            if isinstance(hosts, string_types):
+                hosts = (hosts,)
 
-            try:
-                response = requests.get(endpoint.format(host=host,
-                                                        domain=domain,
-                                                        password=password,
-                                                        ip=ip))
-            except requests.exceptions.RequestException as error:
-                logger.error(error)
-                continue
+            for host in hosts:
 
-            soup = BeautifulSoup(response.text)
-            for result_error in soup.find_all(re.compile(r'(err\d)')):
-                logger.error('Received error when updating %s.%s: %s',
-                             host, domain, result_error.text)
-                break
-            else:
-                logger.info('Successfully updated %s.%s with new IP %s', host, domain, ip)
+                if dry_run:
+                    logger.info('dry_run: True. Will not update %s.%s', host, domain)
+                    continue
+
+                try:
+                    response = requests.get(endpoint.format(host=host,
+                                                            domain=domain,
+                                                            password=password,
+                                                            ip=ip))
+                except requests.exceptions.RequestException as error:
+                    logger.error(error)
+                    continue
+
+                soup = BeautifulSoup(response.text)
+                for result_error in soup.find_all(re.compile(r'(err\d)')):
+                    logger.error('Received error when updating %s.%s: %s',
+                                 host, domain, result_error.text)
+                    break
+                else:
+                    logger.info('Successfully updated %s.%s with new IP %s', host, domain, ip)
 
 
 def get_provider(name, config):
